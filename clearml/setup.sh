@@ -9,7 +9,7 @@ conda activate lambda
 cd $CLEARML_GIT_ROOT
 
 # install deps
-#pip install Cython==3.0.8
+pip install Cython==3.0.8
 # now we need to tell clearml to use the python from our poetry env
 # this is in the general case (we use the system python above, so we could
 # have just hardcoded this as well)
