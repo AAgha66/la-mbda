@@ -4,6 +4,8 @@ import train_utils as train_utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    print(parser.parse_args())
+    print("***********")
     config = train_utils.define_config()
     for key, value in config.items():
         if type(value) == bool:
