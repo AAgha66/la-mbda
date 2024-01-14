@@ -1,13 +1,12 @@
-import subprocess
+import os
 import clearml
-import train_utils as train_utils
+
+# import train_utils as train_utils
 
 if __name__ == "__main__":
-    command = (
-        "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mujoco200/bin"
+    os.environ["LD_LIBRARY_PATH"] = (
+        os.environ["LD_LIBRARY_PATH"] + ":/root/.mujoco/mujoco200/bin"
     )
-    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-    output, error = process.communicate()
 
     config = train_utils.make_config(train_utils.define_config())
     if not config.local:
