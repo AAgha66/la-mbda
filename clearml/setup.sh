@@ -10,7 +10,9 @@ cd $CLEARML_GIT_ROOT
 
 # install deps
 pip install clearml
-pip install -U Cython
+pip install Cython==3.0.8
+apt install libosmesa6-dev libgl1-mesa-glx libglfw3
+ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1 /usr/lib/x86_64-linux-gnu/libGL.so
 # now we need to tell clearml to use the python from our poetry env
 # this is in the general case (we use the system python above, so we could
 # have just hardcoded this as well)
