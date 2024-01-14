@@ -1,26 +1,7 @@
-import argparse
 import train_utils as train_utils
 
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    print(parser.parse_args())
-    print("***********")
-    config = train_utils.define_config()
-    for key, value in config.items():
-        if type(value) == bool:
-            assert not value, "Default bool params should be set to false."
-            parser.add_argument("--{}".format(key), action="store_true")
-        else:
-            parser.add_argument(
-                "--{}".format(key),
-                type=type(value) if value is not None else str,
-                default=value,
-            )
-    print(parser.parse_args())
-    print("***********")
-    config = parser.parse_args()
-
+    config = train_utils.make_config(train_utils.define_config())
     from la_mbda.la_mbda import LAMBDA
 
     train_utils.train(config, LAMBDA)
