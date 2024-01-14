@@ -19,7 +19,7 @@ ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1 /usr/lib/x86_64-linux-gnu/libGL.so
 export python_path="/root/miniconda3/envs/lambda/bin/python"
 cat > $CLEARML_CUSTOM_BUILD_OUTPUT << EOL
 {
-  "binary": "$python_path",
+  "binary": "xvfb-run $python_path",
   "entry_point": "$CLEARML_GIT_ROOT/$CLEARML_TASK_SCRIPT_ENTRY",
   "working_dir": "$CLEARML_GIT_ROOT/$CLEARML_TASK_WORKING_DIR"
 }
