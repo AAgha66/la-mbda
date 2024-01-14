@@ -15,6 +15,8 @@ if __name__ == "__main__":
                 type=type(value) if value is not None else str,
                 default=value,
             )
+    print(parser.parse_args())
+    print("***********")
     config = parser.parse_args()
 
     from la_mbda.la_mbda import LAMBDA
