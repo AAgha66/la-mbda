@@ -5,7 +5,7 @@ import train_utils as train_utils
 
 if __name__ == "__main__":
     os.environ["LD_LIBRARY_PATH"] = (
-        os.environ["LD_LIBRARY_PATH"] + ":/root/.mujoco/mujoco200/bin"
+        os.environ["LD_LIBRARY_PATH"] + ":/home/.mujoco/mujoco200/bin"
     )
 
     config = train_utils.make_config(train_utils.define_config())
@@ -18,6 +18,8 @@ if __name__ == "__main__":
         print(d)
         config.log_dir = d["log_dir"]
         config.environment = d["environment"]
+        config.total_training_steps = d["total_training_steps"]
+        config.safety = d["safety"]
 
     from la_mbda.la_mbda import LAMBDA
 
