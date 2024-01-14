@@ -1,7 +1,7 @@
 import os
 import clearml
 
-# import train_utils as train_utils
+import train_utils as train_utils
 
 if __name__ == "__main__":
     os.environ["LD_LIBRARY_PATH"] = (
