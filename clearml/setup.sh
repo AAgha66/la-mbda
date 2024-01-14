@@ -7,7 +7,7 @@ conda activate lambda
 
 # go to the repo directory
 cd $CLEARML_GIT_ROOT
-cp /home/.mujoco /root/
+cp -r /home/.mujoco /root/
 # now we need to tell clearml to use the python from our poetry env
 # this is in the general case (we use the system python above, so we could
 # have just hardcoded this as well)
