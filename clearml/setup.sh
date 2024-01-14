@@ -15,7 +15,7 @@ cd $CLEARML_GIT_ROOT
 export python_path="/root/miniconda3/envs/lambda/bin/python"
 cat > $CLEARML_CUSTOM_BUILD_OUTPUT << EOL
 {
-  "binary": "xvfb-run $python_path",
+  "binary": "$python_path",
   "entry_point": "$CLEARML_GIT_ROOT/$CLEARML_TASK_SCRIPT_ENTRY",
   "working_dir": "$CLEARML_GIT_ROOT/$CLEARML_TASK_WORKING_DIR"
 }
