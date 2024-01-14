@@ -2,17 +2,16 @@
 echo "Running setup script."
 
 # activate env
-source /root/miniconda3/envs/lambda/bin/python
+conda activate lambda
 
 # go to the repo directory
 cd $CLEARML_GIT_ROOT
 
 # install deps
-pip install -r requirements.txt
 # now we need to tell clearml to use the python from our poetry env
 # this is in the general case (we use the system python above, so we could
 # have just hardcoded this as well)
-export python_path="/root/miniconda3/envs/safe-slac/bin/python"
+export python_path="/root/miniconda3/envs/lambda/bin/python"
 cat > $CLEARML_CUSTOM_BUILD_OUTPUT << EOL
 {
   "binary": "xvfb-run $python_path",
