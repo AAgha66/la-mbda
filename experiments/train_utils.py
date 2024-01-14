@@ -69,6 +69,7 @@ def define_config():
         "evaluate_model": False,
         "cuda_device": "-1",
         "precision": 16,
+        "local": False,
     }
 
 
