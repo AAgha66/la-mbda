@@ -18,13 +18,13 @@ if __name__ == "__main__":
         task = clearml.Task.init()
         task_logger = task.get_logger()
         task_params = task.get_parameters_as_dict(cast=True)
-        print(task_params)
         d = task_params["internal"]
-        print(d)
         config.log_dir = d["log_dir"]
         config.environment = d["environment"]
         config.total_training_steps = d["total_training_steps"]
         config.safety = d["safety"]
+        config.seed = d["seed"]
+        config.observation_type = d["observation_type"]
 
     from la_mbda.la_mbda import LAMBDA
 
