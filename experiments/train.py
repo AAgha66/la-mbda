@@ -1,13 +1,19 @@
 import os
 import clearml
 
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
+
 import train_utils as train_utils
+from pyvirtualdisplay import Display
+
+virtual_display = Display(visible=0, size=(1400, 900))
+virtual_display.start()
+config = ConfigProto()
+config.gpu_options.allow_growth = True
+session = InteractiveSession(config=config)
 
 if __name__ == "__main__":
-    os.environ["LD_LIBRARY_PATH"] = (
-        os.environ["LD_LIBRARY_PATH"] + ":/root/.mujoco/mujoco200/bin"
-    )
-
     config = train_utils.make_config(train_utils.define_config())
     if not config.local:
         task = clearml.Task.init()
