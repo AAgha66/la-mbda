@@ -19,7 +19,13 @@ def make_env(name, episode_length, action_repeat, seed, observation_type):
     else:
         size = (64, 64)
         crop = None
-    if suite == 'dmc':
+    if suite == 'rwrl':
+        env = make_rwrl_env(name, episode_length)
+        render_kwargs = {'height': size[1],
+                         'width': size[0],
+                         'camera_id': 0,
+                        }
+    elif suite == 'dmc':
         env = make_dm_env(name, episode_length)
         render_kwargs = {'height': size[1],
                          'width': size[0],
@@ -42,6 +48,21 @@ def make_env(name, episode_length, action_repeat, seed, observation_type):
     env.seed(seed)
     return env
 
+
+def make_rwrl_env(name, episode_length=1000, safety_coeff=0.3):
+    domain, task = name.rsplit('.', 1)
+    import realworldrl_suite.environments as rwrl
+    env = rwrl.load(
+            domain_name=domain,
+            task_name=task,
+            safety_spec=dict(
+                enable=True, observations=False, safety_coeff=safety_coeff
+            ),
+            environment_kwargs={'flat_observation': True}
+        )        
+    env = DeepMindBridge(env)
+    env = gym.wrappers.TimeLimit(env, max_episode_steps=episode_length)
+    return env
 
 def make_dm_env(name, episode_length):
     domain, task = name.rsplit('.', 1)
