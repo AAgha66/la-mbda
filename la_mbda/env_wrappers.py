@@ -60,7 +60,7 @@ def make_rwrl_env(name, episode_length=1000, safety_coeff=0.3):
             ),
             environment_kwargs={'flat_observation': True}
         )        
-    env = DeepMindBridge(env)
+    env = RWRLBridge(env)
     env = gym.wrappers.TimeLimit(env, max_episode_steps=episode_length)
     return env
 
@@ -186,6 +186,23 @@ class DeepMindBridge(gym.Env):
         self._env.task.random.seed(seed)
 
 
+class RWRLBridge(DeepMindBridge):
+    def observation_space(self):        
+        spec = self._env.observation_spec()
+        return gym.spaces.Box(-np.inf, np.inf, spec.shape, dtype=spec.dtype)
+    
+    def reset(self):
+        time_step = self._env.reset()        
+        obs = time_step.observation
+        return obs
+    
+    def step(self, action):
+        time_step = self._env.step(action)
+        obs = time_step.observation
+        reward = time_step.reward or 0
+        done = time_step.last()
+        return obs, reward, done, {}
+    
 class RenderedObservation(ObservationWrapper):
     def __init__(self, env, observation_type, image_size, render_kwargs, crop=None):
         super(RenderedObservation, self).__init__(env)
