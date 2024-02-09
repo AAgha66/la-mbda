@@ -56,9 +56,9 @@ def make_rwrl_env(name, episode_length=1000, safety_coeff=0.3):
             domain_name=domain,
             task_name=task,
             safety_spec=dict(
-                enable=True, observations=False, safety_coeff=safety_coeff
+                enable=True, observations=True, safety_coeff=safety_coeff
             ),
-            environment_kwargs={'flat_observation': True}
+            environment_kwargs={'flat_observation': False}
         )        
     env = RWRLBridge(env)
     env = gym.wrappers.TimeLimit(env, max_episode_steps=episode_length)
@@ -189,17 +189,36 @@ class DeepMindBridge(gym.Env):
 class RWRLBridge(DeepMindBridge):
     @property
     def observation_space(self):        
-        spec = self._env.observation_spec()
-        return gym.spaces.Box(-np.inf, np.inf, spec.shape, dtype=spec.dtype)
+        n_obs = 0
+        dtype=None
+        for k, v in self._env.observation_spec().items():
+            if k == "constraints":
+                continue
+            n_obs += v.shape[0]
+            dtype=v.dtype
+        return gym.spaces.Box(-np.inf, np.inf, np.array([n_obs,]), dtype=dtype)
     
     def reset(self):
         time_step = self._env.reset()        
-        obs = time_step.observation
+        obs = self._get_obs(time_step)
         return obs
+
+    def _get_obs(self, timestep):
+        arrays = []
+        for k, v in self._env.observation_spec().items():
+            if k == "constraints":
+                continue
+            array = timestep.observation[k]
+            if v.shape == ():
+                array = np.array([array])
+            arrays.append(array)
+        obs = np.concatenate(arrays, -1)
+        return obs
+
     
     def step(self, action):
         time_step = self._env.step(action)
-        obs = time_step.observation
+        obs = self._get_obs(time_step)
         reward = time_step.reward or 0
         done = time_step.last()
         return obs, reward, done, {}
