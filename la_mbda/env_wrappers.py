@@ -178,7 +178,7 @@ class DeepMindBridge(gym.Env):
         return self._env.physics.render(**kwargs)
 
     def reset(self):
-        time_step = self._env.reset()
+        time_step = self._env.reset()        
         obs = time_step.observation['observations']
         return obs
 
@@ -187,6 +187,7 @@ class DeepMindBridge(gym.Env):
 
 
 class RWRLBridge(DeepMindBridge):
+    @property
     def observation_space(self):        
         spec = self._env.observation_spec()
         return gym.spaces.Box(-np.inf, np.inf, spec.shape, dtype=spec.dtype)
