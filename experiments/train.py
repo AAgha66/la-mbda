@@ -25,7 +25,7 @@ if __name__ == "__main__":
         config.safety = d["safety"]
         config.seed = d["seed"]
         config.observation_type = d["observation_type"]
-        config.observation_type = d["cost_threshold"]
+        config.cost_threshold = d["cost_threshold"]
 
     from la_mbda.la_mbda import LAMBDA
 
