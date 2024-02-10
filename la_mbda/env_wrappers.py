@@ -12,7 +12,7 @@ IMAGE_CROP_ENVS = ['manipulator', 'stacker', 'pointmass']
 
 def make_env(name, episode_length, action_repeat, seed, observation_type):
     suite, name = name.split('_', 1)
-    rendered = observation_type in ['rgb_image', 'binary_image']
+    rendered = observation_type in ['rgb_image', 'binary_image']    
     if any(env in name for env in IMAGE_CROP_ENVS):
         size = (240, 320)
         crop = (12, 25, 12, 25)
@@ -207,21 +207,20 @@ class RWRLBridge(DeepMindBridge):
         arrays = []
         for k, v in self._env.observation_spec().items():
             if k == "constraints":
-                continue
+                cost = 1.0 - timestep.observation["constraints"][0]
             array = timestep.observation[k]
             if v.shape == ():
                 array = np.array([array])
             arrays.append(array)
         obs = np.concatenate(arrays, -1)
-        return obs
+        return obs, cost
 
-    
     def step(self, action):
         time_step = self._env.step(action)
-        obs = self._get_obs(time_step)
+        obs, cost = self._get_obs(time_step)
         reward = time_step.reward or 0
         done = time_step.last()
-        return obs, reward, done, {}
+        return obs, reward, done, {"cost": cost}
     
 class RenderedObservation(ObservationWrapper):
     def __init__(self, env, observation_type, image_size, render_kwargs, crop=None):
