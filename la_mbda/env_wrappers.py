@@ -200,18 +200,19 @@ class RWRLBridge(DeepMindBridge):
     
     def reset(self):
         time_step = self._env.reset()        
-        obs = self._get_obs(time_step)
+        obs, _ = self._get_obs(time_step)
         return obs
 
     def _get_obs(self, timestep):
         arrays = []
         for k, v in self._env.observation_spec().items():
             if k == "constraints":
-                cost = 1.0 - timestep.observation["constraints"][0]
-            array = timestep.observation[k]
-            if v.shape == ():
-                array = np.array([array])
-            arrays.append(array)
+                cost = 1.0 - timestep.observation["constraints"][0]                
+            else:
+                array = timestep.observation[k]
+                if v.shape == ():
+                    array = np.array([array])
+                arrays.append(array)
         obs = np.concatenate(arrays, -1)
         return obs, cost
 
