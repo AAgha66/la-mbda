@@ -8,6 +8,8 @@ from gym.wrappers import RescaleAction
 import la_mbda.utils as utils
 
 IMAGE_CROP_ENVS = ['manipulator', 'stacker', 'pointmass']
+CONSTRAINT_INDICES = {"cartpole": 0, "walker": 1, "quadruped": 0}
+SAFETY_COEFFS = {"cartpole": 0.3,"walker": 0.3,"quadruped": 0.5}
 
 
 def make_env(name, episode_length, action_repeat, seed, observation_type):
@@ -49,18 +51,20 @@ def make_env(name, episode_length, action_repeat, seed, observation_type):
     return env
 
 
-def make_rwrl_env(name, episode_length=1000, safety_coeff=0.3):
+def make_rwrl_env(name, episode_length=1000):
     domain, task = name.rsplit('.', 1)
     import realworldrl_suite.environments as rwrl
+    from pdb import set_trace
+    set_trace()
     env = rwrl.load(
             domain_name=domain,
             task_name=task,
             safety_spec=dict(
-                enable=True, observations=True, safety_coeff=safety_coeff
+                enable=True, observations=True, safety_coeff=SAFETY_COEFFS[domain]
             ),
             environment_kwargs={'flat_observation': False}
         )        
-    env = RWRLBridge(env)
+    env = RWRLBridge(env, CONSTRAINT_INDICES[domain])
     env = gym.wrappers.TimeLimit(env, max_episode_steps=episode_length)
     return env
 
@@ -187,6 +191,9 @@ class DeepMindBridge(gym.Env):
 
 
 class RWRLBridge(DeepMindBridge):
+    def __init__(self, env, constraint_idx):
+        self._env = env
+        self._constraint_idx = constraint_idx
     @property
     def observation_space(self):        
         n_obs = 0
@@ -207,7 +214,7 @@ class RWRLBridge(DeepMindBridge):
         arrays = []
         for k, v in self._env.observation_spec().items():
             if k == "constraints":
-                cost = 1.0 - timestep.observation["constraints"][0]                
+                cost = 1.0 - timestep.observation["constraints"][self._constraint_idx]                
             else:
                 array = timestep.observation[k]
                 if v.shape == ():
