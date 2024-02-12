@@ -54,8 +54,6 @@ def make_env(name, episode_length, action_repeat, seed, observation_type):
 def make_rwrl_env(name, episode_length=1000):
     domain, task = name.rsplit('.', 1)
     import realworldrl_suite.environments as rwrl
-    from pdb import set_trace
-    set_trace()
     env = rwrl.load(
             domain_name=domain,
             task_name=task,
