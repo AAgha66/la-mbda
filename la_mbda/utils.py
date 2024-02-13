@@ -1,5 +1,8 @@
+import os
 from collections import defaultdict
+import pickle
 
+import clearml
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
@@ -218,3 +221,19 @@ def plot_prediction_ground_truth(ground_truth, prediction):
         if n == 0:
             fig.legend()
     return fig
+
+def load_cml_data(env_handle, pct, agent):
+    dataset = clearml.Dataset.get(
+        dataset_project="Users/ahmagha/data/lambda",
+        dataset_name=env_handle,
+        only_completed=True,
+        only_published=False,
+    )
+    path = dataset.get_local_copy()
+    joined_path = os.path.join(path, f"{env_handle}_{pct}p.pkl")
+    with open(joined_path, "rb") as f:
+        episodes = pickle.load(f)
+    for episode in episodes:
+        for transition in episode:            
+            agent._experience.store(transition)
+    return agent

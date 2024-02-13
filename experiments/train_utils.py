@@ -24,6 +24,8 @@ def define_config():
         "steps_per_critic_clone": 1000,
         "batch_size": 32,
         "warmup_training_steps": 5000,
+        "offline":False,
+        "pct":10,
         # MODELS
         "kl_scale": 1.0,
         "kl_mix": 0.8,
@@ -56,7 +58,7 @@ def define_config():
         "cost_imbalance_weight": 100.0,
         # TRAINING
         "total_training_steps": 500000,
-        "action_repeat": 2,
+        "action_repeat": 1,
         "environment": "dmc_cartpole_balance",
         "safety": False,
         "observation_type": "rgb_image",
@@ -150,7 +152,7 @@ def on_episode_end(episode_summary, logger, global_step, steps_count):
     logger.log_evaluation_summary(summary, steps)
 
 
-def train(config, agent):
+def train(config, agent, task):
     tf.get_logger().setLevel("ERROR")
     logger = utils.TrainingLogger(config)
     random.seed(config.seed)
@@ -184,25 +186,33 @@ def train(config, agent):
                 steps, config.log_dir
             )
         )
+    training_summary = None
+    evaluation_summaries = None
+    if config.offline:   
+        env_handle = config.environment.split("_",1)[1].split(".",1)[0]
+        agent = utils.load_cml_data(env_handle, config.pct, agent)
     while steps < config.total_training_steps:
         print("Performing a training epoch.")
-        training_steps, training_episodes_summaries = utils.interact(
-            agent,
-            train_env,
-            config.training_steps_per_epoch,
-            config,
-            training=True,
-            on_episode_end=lambda episode_summary, steps_count: on_episode_end(
-                episode_summary,
-                logger=logger,
-                global_step=steps,
-                steps_count=steps_count,
-            ),
-        )
-        steps += training_steps
-        training_summary = make_summary(
-            training_episodes_summaries, "training"
-        )
+        if config.offline:
+            training_steps = agent.train_offline(config.training_steps_per_epoch)
+        else:
+            training_steps, training_episodes_summaries = utils.interact(
+                agent,
+                train_env,
+                config.training_steps_per_epoch,
+                config,
+                training=True,
+                on_episode_end=lambda episode_summary, steps_count: on_episode_end(
+                    episode_summary,
+                    logger=logger,
+                    global_step=steps,
+                    steps_count=steps_count,
+                ),
+            )
+            training_summary = make_summary(
+                training_episodes_summaries, "training"
+            )
+        steps += training_steps            
         if (
             config.evaluation_steps_per_epoch
             and agent.warm
@@ -212,11 +222,15 @@ def train(config, agent):
             evaluation_summaries = evaluate(
                 agent, train_env, logger, config, steps
             )
-            training_summary.update(evaluation_summaries)
-        logger.log_evaluation_summary(training_summary, steps)
+            if training_summary:
+                training_summary.update(evaluation_summaries)
+        if training_summary or evaluation_summaries:
+            logger.log_evaluation_summary(training_summary if training_summary else evaluation_summaries, steps)
         checkpoint.write(
             os.path.join(config.log_dir, "agent_data", "checkpoint")
         )
+        if task is not None:
+            task.upload_artifact("checkpoint_data", os.path.join(config.log_dir, "agent_data"))
     train_env.close()
     return agent
 

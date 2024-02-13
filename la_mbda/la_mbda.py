@@ -65,6 +65,18 @@ class LAMBDA(tf.Module):
         self._prev_action.assign(action)
         return action
 
+    def train_offline(self, steps):
+        if not self.pretrained_model:
+                self.pretrain_model()
+        print("Updating world model, actor and critic.")
+        for batch in tqdm(self._experience.sample(steps),
+                            leave=False, total=steps):            
+            self.train(batch)
+        self._training_step.assign_add(steps)
+        if self.time_to_clone_critic:
+            self._clone_critics()
+        return steps
+
     @tf.function
     def train(self, batch):
         posterior_features = self.model.train(batch)
@@ -80,7 +92,7 @@ class LAMBDA(tf.Module):
     def pretrain_model(self):
         training_steps = max(self._config.pretrain_steps, 1)
         print("Pretraining for {} training steps".format(training_steps))
-        dataset = self._experience.sample(training_steps)
+        dataset = self._experience.sample(training_steps)        
         for batch in tqdm(dataset, leave=False, total=training_steps):
             self.model.train(batch)
         self._pretrained.assign(True)
