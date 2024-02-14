@@ -14,7 +14,7 @@ session = InteractiveSession(config=config)
 
 if __name__ == "__main__":
     config = train_utils.make_config(train_utils.define_config())
-    task=None
+    task = None
     if not config.local:
         task = clearml.Task.init()
         task_logger = task.get_logger()
@@ -27,6 +27,7 @@ if __name__ == "__main__":
         config.seed = d["seed"]
         config.observation_type = d["observation_type"]
         config.cost_threshold = d["cost_threshold"]
+        config.action_repeat = d["action_repeat"]
 
     from la_mbda.la_mbda import LAMBDA
 
