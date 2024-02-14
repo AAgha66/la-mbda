@@ -43,7 +43,7 @@ def make_env(name, episode_length, action_repeat, seed, observation_type):
         render_kwargs = {'mode': 'vision'}
     else:
         raise NotImplementedError
-    env = ActionRepeat(env, action_repeat, suite == 'sgym')  # sum costs in suite is safety_gym
+    # env = ActionRepeat(env, action_repeat, suite == 'sgym')  # sum costs in suite is safety_gym
     env = RescaleAction(env, -1.0, 1.0)
     if rendered:
         env = RenderedObservation(env, observation_type, (64, 64), render_kwargs, crop)
