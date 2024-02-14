@@ -27,6 +27,8 @@ if __name__ == "__main__":
         config.seed = d["seed"]
         config.observation_type = d["observation_type"]
         config.cost_threshold = d["cost_threshold"]
+        config.cost_threshold = d["offline"]
+        config.cost_threshold = d["pct"]
         config.action_repeat = d["action_repeat"]
 
     from la_mbda.la_mbda import LAMBDA
