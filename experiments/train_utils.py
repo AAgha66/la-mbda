@@ -190,7 +190,7 @@ def train(config, agent, task):
     evaluation_summaries = None
     if config.offline:   
         env_handle = config.environment.split("_",1)[1].split(".",1)[0]
-        agent = utils.load_cml_data(env_handle, config.pct, agent)
+        agent = utils.load_cml_data(env_handle, config.pct, agent, config.action_repeat)
     while steps < config.total_training_steps:
         print("Performing a training epoch.")
         if config.offline:

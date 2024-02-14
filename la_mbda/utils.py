@@ -222,7 +222,7 @@ def plot_prediction_ground_truth(ground_truth, prediction):
             fig.legend()
     return fig
 
-def load_cml_data(env_handle, pct, agent):
+def load_cml_data(env_handle, pct, agent, action_repeat=2):
     dataset = clearml.Dataset.get(
         dataset_project="Users/ahmagha/data/lambda",
         dataset_name=env_handle,
@@ -234,6 +234,15 @@ def load_cml_data(env_handle, pct, agent):
     with open(joined_path, "rb") as f:
         episodes = pickle.load(f)
     for episode in episodes:
-        for transition in episode:            
+        for step in range(0, len(episode), action_repeat):
+            total_reward = 0.0
+            current_step = 0
+            while current_step < action_repeat:
+                transition = episode[step + current_step]
+                total_reward += transition["reward"]
+                current_step += 1
+                if transition["terminal"].item():
+                    break
+            transition["reward"] = total_reward
             agent._experience.store(transition)
     return agent
