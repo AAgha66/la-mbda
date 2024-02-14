@@ -58,13 +58,14 @@ def define_config():
         "cost_imbalance_weight": 100.0,
         # TRAINING
         "total_training_steps": 500000,
-        "action_repeat": 1,
+        "action_repeat": 2,
         "environment": "dmc_cartpole_balance",
         "safety": False,
         "observation_type": "rgb_image",
         "seed": 314,
         "episode_length": 1000,
         "training_steps_per_epoch": 25000,
+        "offline_steps_per_epoch": 500,
         "evaluation_steps_per_epoch": 10000,
         "log_dir": "runs",
         "render_episodes": 1,
@@ -194,7 +195,7 @@ def train(config, agent, task):
     while steps < config.total_training_steps:
         print("Performing a training epoch.")
         if config.offline:
-            training_steps = agent.train_offline(config.training_steps_per_epoch)
+            training_steps = agent.train_offline(config.offline_steps_per_epoch)
         else:
             training_steps, training_episodes_summaries = utils.interact(
                 agent,

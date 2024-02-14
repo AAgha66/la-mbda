@@ -75,7 +75,7 @@ class LAMBDA(tf.Module):
         self._training_step.assign_add(steps)
         if self.time_to_clone_critic:
             self._clone_critics()
-        return steps
+        return steps * 10 # i added the x10 as dreamer trains with ratio 1/10 to env steps strangely
 
     @tf.function
     def train(self, batch):
