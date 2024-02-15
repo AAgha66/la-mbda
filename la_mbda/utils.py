@@ -246,3 +246,14 @@ def load_cml_data(env_handle, pct, agent, action_repeat=2):
             transition["reward"] = total_reward
             agent._experience.store(transition)
     return agent
+
+def load_cml_model(
+    checkpoint, env, pct, project_name="pretrained_lambda", task_name="lambda"
+):
+    task = clearml.Task.get_task(
+        project_name=f"Users/ahmagha/{project_name}",
+        task_name=f"{task_name}_{env}_{pct}",
+    )
+    ckpt_path = task.artifacts["checkpoint_data"].get_local_copy()
+    checkpoint.restore(os.path.join(ckpt_path, "checkpoint"))
+    return checkpoint

@@ -73,6 +73,7 @@ def define_config():
         "cuda_device": "-1",
         "precision": 16,
         "local": False,
+        "pretrained": False,
     }
 
 
@@ -176,11 +177,10 @@ def train(config, agent, task):
         config, logger, train_env.observation_space, train_env.action_space
     )
     checkpoint = tf.train.Checkpoint(agent=agent)
+    env_handle = config.environment.split("_", 1)[1].split(".", 1)[0]
     steps = 0
-    if pathlib.Path(config.log_dir, "agent_data").exists():
-        checkpoint.restore(
-            os.path.join(config.log_dir, "agent_data", "checkpoint")
-        )
+    if config.pretrained:
+        checkpoint = utils.load_cml_model(checkpoint, env_handle, config.pct)
         steps = agent.training_step
         print(
             "Loaded {} steps. Continuing training from {}".format(
@@ -189,8 +189,7 @@ def train(config, agent, task):
         )
     training_summary = None
     evaluation_summaries = None
-    if config.offline:   
-        env_handle = config.environment.split("_",1)[1].split(".",1)[0]
+    if config.offline or config.pretrained:
         agent = utils.load_cml_data(env_handle, config.pct, agent, config.action_repeat)
     while steps < config.total_training_steps:
         print("Performing a training epoch.")
