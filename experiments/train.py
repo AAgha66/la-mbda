@@ -30,6 +30,7 @@ if __name__ == "__main__":
         config.offline = d["offline"]
         config.pct = d["pct"]
         config.action_repeat = d["action_repeat"]
+        config.pretrained = d["pretrained"]
 
     from la_mbda.la_mbda import LAMBDA
 
