@@ -24,8 +24,8 @@ def define_config():
         "steps_per_critic_clone": 1000,
         "batch_size": 32,
         "warmup_training_steps": 5000,
-        "offline":False,
-        "pct":10,
+        "offline": False,
+        "pct": 10,
         # MODELS
         "kl_scale": 1.0,
         "kl_mix": 0.8,
@@ -64,7 +64,7 @@ def define_config():
         "observation_type": "rgb_image",
         "seed": 314,
         "episode_length": 1000,
-        "training_steps_per_epoch": 25000,
+        "training_steps_per_epoch": 5000,
         "offline_steps_per_epoch": 500,
         "evaluation_steps_per_epoch": 10000,
         "log_dir": "runs",
@@ -190,11 +190,15 @@ def train(config, agent, task):
     training_summary = None
     evaluation_summaries = None
     if config.offline or config.pretrained:
-        agent = utils.load_cml_data(env_handle, config.pct, agent, config.action_repeat)
+        agent = utils.load_cml_data(
+            env_handle, config.pct, agent, config.action_repeat
+        )
     while steps < config.total_training_steps:
         print("Performing a training epoch.")
         if config.offline:
-            training_steps = agent.train_offline(config.offline_steps_per_epoch)
+            training_steps = agent.train_offline(
+                config.offline_steps_per_epoch
+            )
         else:
             training_steps, training_episodes_summaries = utils.interact(
                 agent,
@@ -212,7 +216,7 @@ def train(config, agent, task):
             training_summary = make_summary(
                 training_episodes_summaries, "training"
             )
-        steps += training_steps            
+        steps += training_steps
         if (
             config.evaluation_steps_per_epoch
             and agent.warm
@@ -225,12 +229,17 @@ def train(config, agent, task):
             if training_summary:
                 training_summary.update(evaluation_summaries)
         if training_summary or evaluation_summaries:
-            logger.log_evaluation_summary(training_summary if training_summary else evaluation_summaries, steps)
+            logger.log_evaluation_summary(
+                training_summary if training_summary else evaluation_summaries,
+                steps,
+            )
         checkpoint.write(
             os.path.join(config.log_dir, "agent_data", "checkpoint")
         )
         if task is not None:
-            task.upload_artifact("checkpoint_data", os.path.join(config.log_dir, "agent_data"))
+            task.upload_artifact(
+                "checkpoint_data", os.path.join(config.log_dir, "agent_data")
+            )
     train_env.close()
     return agent
 
