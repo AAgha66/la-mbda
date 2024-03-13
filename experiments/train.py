@@ -28,7 +28,8 @@ if __name__ == "__main__":
         config.observation_type = d["observation_type"]
         config.cost_threshold = d["cost_threshold"]
         config.offline = d["offline"]
-        config.pct = d["pct"]
+        if config.offline:
+            config.pct = d["pct"]
         config.action_repeat = d["action_repeat"]
         config.pretrained = d["pretrained"]
 
